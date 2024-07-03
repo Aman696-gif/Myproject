@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
+import os
+
+# Define the path to the images
+IMAGE_PATH = "C:/Users/24469/OneDrive - Lynfield College/New Assessment 91906/Weight stuff"
+
+def calculate_bmi():
+    try:
+        height = float(entry_height.get())
+        weight = float(entry_weight.get())
+        bmi = weight / (height ** 2)
+        label_bmi_value.config(text=f"{bmi:.2f}")
+       
+        if bmi < 18.5:
+            image_path = os.path.join(IMAGE_PATH, "over.png")
+            status = "Underweight"
+        elif 18.5 <= bmi < 24.9:
+            image_path = os.path.join(IMAGE_PATH, "over.png")
+            status = "Normal weight"
+        elif 25 <= bmi < 29.9:
+            image_path = os.path.join(IMAGE_PATH, "over.png")
+            status = "Overweight"
+        else:
+            image_path = os.path.join(IMAGE_PATH, "over.png")
+            status = "Obesity"
+
+        print(f"Loading image from: {image_path}")  # Diagnostic message
+       
+        img = Image.open(image_path)
+        img = img.resize((150, 150), Image.LANCZOS)
+        img = ImageTk.PhotoImage(img)
+        label_image.config(image=img)
+        label_image.image = img
+       
+        label_status.config(text=status)
+       
+    except ValueError:
+        messagebox.showerror("Invalid input", "Please enter valid numbers for height and weight.")
+    except FileNotFoundError:
+        messagebox.showerror("File not found", f"The image file could not be found at: {image_path}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+
+# Create the main window
+root = tk.Tk()
+root.title("BMI Calculator")
+
+# Create and place the labels and entries for height and weight
+label_height = tk.Label(root, text="Height (m):")
+label_height.grid(row=0, column=0, padx=10, pady=10)
+entry_height = tk.Entry(root)
+entry_height.grid(row=0, column=1, padx=10, pady=10)
+
+label_weight = tk.Label(root, text="Weight (kg):")
+label_weight.grid(row=1, column=0, padx=10, pady=10)
+entry_weight = tk.Entry(root)
+entry_weight.grid(row=1, column=1, padx=10, pady=10)
+
+# Create and place the button to calculate BMI
+button_calculate = tk.Button(root, text="Calculate BMI", command=calculate_bmi)
+button_calculate.grid(row=2, column=0, columnspan=2, pady=10)
+
+# Create and place the label to display the BMI value
+label_bmi_text = tk.Label(root, text="BMI:")
+label_bmi_text.grid(row=3, column=0, padx=10, pady=10)
+label_bmi_value = tk.Label(root, text="0.00")
+label_bmi_value.grid(row=3, column=1, padx=10, pady=10)
+
+# Create and place the label to display the BMI status
+label_status_text = tk.Label(root, text="Status:")
+label_status_text.grid(row=4, column=0, padx=10, pady=10)
+label_status = tk.Label(root, text="")
+label_status.grid(row=4, column=1, padx=10, pady=10)
+
+# Create and place the label to display the image
+label_image = tk.Label(root)
+label_image.grid(row=5, column=0, columnspan=2, pady=10)
+
+# Start the main loop
+root.mainloop()
