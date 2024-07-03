@@ -1,0 +1,30 @@
+def calculate_hcf(x, y):
+    while x !=y:
+        if x>y:
+            x=x-y
+        else:
+            y=y-x
+    return x
+
+def calculate_lcm(a,b):
+    lcm=a*b/x
+    return lcm
+
+def calculate_lcm(a, b):
+    hcf = calculate_hcf(a, b)
+    lcm = (a * b) // hcf
+    return lcm
+
+# Input two numbers
+num1 = int(input("Enter the first number: "))
+num2 = int(input("Enter the second number: "))
+
+# Calculate HCF
+hcf = calculate_hcf(num1, num2)
+
+# Calculate LCM
+lcm = calculate_lcm(num1, num2)
+
+# Print the result
+print(f"The HCF of {num1} and {num2} is {hcf}")
+print(f"The LCM of {num1} and {num2} is {lcm}")
