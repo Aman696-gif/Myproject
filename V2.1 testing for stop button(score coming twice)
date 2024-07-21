@@ -1,0 +1,186 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+import time
+
+class ArithmeticGame:
+    def __init__(self, root):
+        # Initialize the main window and game variables
+        self.root = root
+        self.root.title("Arithmetic Game")
+        self.root.geometry("400x300")  # Set the window size
+        self.name = ""
+        self.score = 0
+        self.wrong_answers = []
+        self.questions = []
+        self.game_running = False  # Flag to track if the game is running
+
+        # Create and pack the name entry widgets
+        self.name_label = tk.Label(root, text="Enter your name:", font=("Arial", 14))
+        self.name_label.pack(pady=10)
+        self.name_entry = tk.Entry(root, font=("Arial", 12))
+        self.name_entry.pack(pady=10)
+        self.name_button = tk.Button(root, text="Start", command=self.validate_name, font=("Arial", 12))
+        self.name_button.pack(pady=10)
+
+    def validate_name(self):
+        # Validate the name input to ensure it is alphabetic
+        self.name = self.name_entry.get()
+        if self.name.isalpha():
+            # If valid, proceed to the game setup
+            self.name_label.pack_forget()
+            self.name_entry.pack_forget()
+            self.name_button.pack_forget()
+            self.start_game()
+        else:
+            # If invalid, show an error message
+            messagebox.showerror("Invalid Name", "Please enter a valid name.")
+
+    def start_game(self):
+        # Create and pack the difficulty selection widgets
+        self.difficulty_label = tk.Label(self.root, text="Select Difficulty:", font=("Arial", 14))
+        self.difficulty_label.pack(pady=10)
+        self.difficulty_var = tk.StringVar()
+        self.easy_button = tk.Radiobutton(self.root, text="Easy", variable=self.difficulty_var, value="easy", font=("Arial", 12))
+        self.easy_button.pack(pady=5)
+        self.medium_button = tk.Radiobutton(self.root, text="Medium", variable=self.difficulty_var, value="medium", font=("Arial", 12))
+        self.medium_button.pack(pady=5)
+        self.hard_button = tk.Radiobutton(self.root, text="Hard", variable=self.difficulty_var, value="hard", font=("Arial", 12))
+        self.hard_button.pack(pady=5)
+        self.start_button = tk.Button(self.root, text="Start Game", command=self.set_difficulty, font=("Arial", 12))
+        self.start_button.pack(pady=10)
+
+    def set_difficulty(self):
+        # Set the game parameters based on the selected difficulty
+        difficulty = self.difficulty_var.get()
+        if difficulty == "easy":
+            self.time_limit = 100
+            self.range_start = 1
+            self.range_end = 10
+        elif difficulty == "medium":
+            self.time_limit = 100
+            self.range_start = 10
+            self.range_end = 50
+        elif difficulty == "hard":
+            self.time_limit = 100
+            self.range_start = 50
+            self.range_end = 100
+        else:
+            messagebox.showerror("Select Difficulty", "Please select a difficulty level.")
+            return
+        # Hide the difficulty selection widgets and start the game
+        self.start_button.pack_forget()
+        self.easy_button.pack_forget()
+        self.medium_button.pack_forget()
+        self.hard_button.pack_forget()
+        self.difficulty_label.pack_forget()
+        self.run_game()
+
+    def generate_question(self):
+        # Generate a random arithmetic question
+        num1 = random.randint(self.range_start, self.range_end)
+        num2 = random.randint(self.range_start, self.range_end)
+        operation = random.choice(["+", "-", "*", "/"])
+        if operation == "/":
+            while num2 == 0:  # Ensure divisor is not zero
+                num2 = random.randint(self.range_start, self.range_end)
+            question = f"{num1} {operation} {num2}"
+            answer = num1 // num2  # Floor division
+        else:
+            question = f"{num1} {operation} {num2}"
+            answer = eval(question)
+        self.questions.append((question, answer, operation))
+
+    def run_game(self):
+        # Set up the game interface
+        self.game_running = True  # Set the game as running
+        self.question_label = tk.Label(self.root, text="", font=("Arial", 14))
+        self.question_label.pack(pady=10)
+        self.note_label = tk.Label(self.root, text="", font=("Arial", 10))  # Label for notes (division operation)
+        self.note_label.pack(pady=5)
+        self.answer_entry = tk.Entry(self.root, font=("Arial", 12))
+        self.answer_entry.pack(pady=10)
+        self.submit_button = tk.Button(self.root, text="Submit", command=self.check_answer, font=("Arial", 12))
+        self.submit_button.pack(pady=10)
+        self.stop_button = tk.Button(self.root, text="Stop Game", command=self.stop_game, font=("Arial", 12))  # Stop button
+        self.stop_button.pack(pady=10)
+        # Initialize the timer and start the first question
+        self.time_left = self.time_limit
+        self.update_timer()
+        self.next_question()
+
+    def update_timer(self):
+        # Update the countdown timer
+        if self.time_left > 0 and self.game_running:
+            self.root.after(1000, self.update_timer)
+            self.time_left -= 1
+        else:
+            # End the game when the timer reaches zero
+            self.end_game()
+
+    def check_answer(self):
+        # Check the user's answer against the correct answer
+        try:
+            user_answer = int(self.answer_entry.get())
+            current_question, correct_answer, operation = self.questions[-1]
+            if user_answer == correct_answer:
+                self.score += 1
+            else:
+                self.wrong_answers.append((current_question, correct_answer, user_answer))
+            self.answer_entry.delete(0, tk.END)
+            self.next_question()  # Automatically move to the next question
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Please enter a valid number.")
+
+    def next_question(self):
+        # Move to the next question
+        if self.time_left > 0 and self.game_running:
+            self.generate_question()
+            current_question, _, operation = self.questions[-1]
+            self.question_label.config(text=current_question)
+            if operation == "/":
+                self.note_label.config(text="Note: Only the integer part of the division is considered.")
+            else:
+                self.note_label.config(text="")
+        else:
+            self.end_game()
+
+    def stop_game(self):
+        # End the game when the user clicks the stop button
+        self.game_running = False
+        self.end_game()
+
+    def end_game(self):
+        # End the game and display the results
+        self.question_label.pack_forget()
+        self.answer_entry.pack_forget()
+        self.submit_button.pack_forget()
+        self.stop_button.pack_forget()
+        self.note_label.pack_forget()
+        self.display_results()
+
+    def display_results(self):
+        # Display the game results and correct answers for wrong responses
+        results_label = tk.Label(self.root, text=f"Game Over! {self.name}, your score is {self.score}.", font=("Arial", 14))
+        results_label.pack(pady=10)
+        wrong_answers_label = tk.Label(self.root, text="Review of incorrect answers:", font=("Arial", 12))
+        wrong_answers_label.pack(pady=10)
+        for question, correct_answer, user_answer in self.wrong_answers:
+            answer_review = tk.Label(self.root, text=f"{question} = {correct_answer} (Your answer: {user_answer})", font=("Arial", 12))
+            answer_review.pack(pady=5)
+        self.save_results()
+
+    def save_results(self):
+        # Save the results to a text file
+        with open("scores.txt", "a") as file:
+            file.write(f"Name: {self.name}, Score: {self.score}\n")
+            for question, correct_answer, user_answer in self.wrong_answers:
+                file.write(f"{question} = {correct_answer} (Your answer: {user_answer})\n")
+            file.write("\n")
+        messagebox.showinfo("Results Saved", "Your results have been saved to scores.txt.")
+
+if __name__ == "__main__":
+    # Create the main application window and start the game
+    root = tk.Tk()
+    game = ArithmeticGame(root)
+    root.mainloop()
