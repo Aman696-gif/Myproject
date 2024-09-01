@@ -37,7 +37,7 @@ class ArithmeticGame:
         # Initialize the main window and game variables
         self.root = root
         self.root.title("FUN MATH GAME")
-        self.root.geometry("500x500")  
+        self.root.geometry("500x520")  
         self.root.configure(bg="light blue")
 
         # Game variables
@@ -87,7 +87,7 @@ class ArithmeticGame:
 
     def show_game_options(self):
         # Display the options for selecting the game mode
-        self.root.geometry("500x500")
+        self.root.geometry("500x600")
         
         # Label prompting the user to select a game mode
         self.option_label = tk.Label(self.root, text="Select Game Mode:", font=("Times", 14),width=25,
@@ -233,7 +233,7 @@ class ArithmeticGame:
         self.quick_game_button.pack_forget()
         self.image_label.pack_forget()
         # Resize the window for the arithmetic game
-        self.root.geometry("400x300")
+        self.root.geometry("600x400")
     
         self.difficulty_label = tk.Label(self.root, text="Select Difficulty:",
                                          font=("Times", 14), width=17, height=2)
